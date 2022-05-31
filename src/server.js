@@ -18,15 +18,27 @@ const httpServer = http.createServer(app);
 const io = SocketIO(httpServer);
 
 io.on("connection", (socket) => {
-  socket.onAny((event) => {
-    console.log(`Socket Event: ${event}`);
-  });
+  // 닉네임 초기화
+  socket["nickname"] = "Anonymous";
 
   socket.on("enter_room", (roomName, done) => {
     socket.join(roomName); // 현재 소켓을 roomName이라는 채팅방에 참가 (채팅방에 입장)
     done();
-    socket.to(roomName).emit("welcome");
+    socket.to(roomName).emit("welcome", socket.nickname);
   });
+
+  socket.on("new_message", (msg, roomName, done) => {
+    socket.to(roomName).emit("new_message", `${socket.nickname}: ${msg}`);
+    done();
+  });
+
+  socket.on("disconnecting", () => {
+    socket.rooms.forEach((room) =>
+      socket.to(room).emit("bye", socket.nickname)
+    );
+  });
+
+  socket.on("nickname", (nickname) => (socket["nickname"] = nickname));
 });
 
 // 3000번 포트를 통해 websocket, http 프로토콜을 이용해서 접속할 수 있음
