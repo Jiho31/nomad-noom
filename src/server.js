@@ -21,10 +21,10 @@ io.on("connection", (socket) => {
   // 닉네임 초기화
   socket["nickname"] = "Anonymous";
 
-  socket.on("enter_room", (roomName, done) => {
+  socket.on("enter_room", (roomName, user, done) => {
     socket.join(roomName); // 현재 소켓을 roomName이라는 채팅방에 참가 (채팅방에 입장)
     done();
-    socket.to(roomName).emit("welcome", socket.nickname);
+    socket.to(roomName).emit("welcome", user);
   });
 
   socket.on("new_message", (msg, roomName, done) => {

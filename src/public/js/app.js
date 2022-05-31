@@ -25,12 +25,6 @@ function handleMessageSubmit(event) {
   input.value = "";
 }
 
-function handleNicknameSubmit(event) {
-  event.preventDefault();
-  const input = room.querySelector("#name input");
-  socket.emit("nickname", input.value);
-}
-
 function showRoom() {
   welcome.hidden = true;
   room.hidden = false;
@@ -39,18 +33,22 @@ function showRoom() {
   h3.innerText = `📍 Room ${roomName}`;
 
   const msgForm = room.querySelector("#msg");
-  const nameForm = room.querySelector("#name");
   msgForm.addEventListener("submit", handleMessageSubmit);
-  nameForm.addEventListener("submit", handleNicknameSubmit);
 }
 
 function handleRoomSubmit(event) {
   event.preventDefault();
-  const input = form.querySelector("input");
 
-  socket.emit("enter_room", input.value, showRoom);
-  roomName = input.value;
-  input.value = "";
+  // 닉네임 설정
+  const nicknameInput = form.querySelector("#nickname");
+  socket.emit("nickname", nicknameInput.value);
+
+  // 채팅방 이름 설정
+  const roomInput = form.querySelector("#roomName");
+
+  socket.emit("enter_room", roomInput.value, nicknameInput.value, showRoom);
+  roomName = roomInput.value;
+  roomInput.value = "";
 }
 
 form.addEventListener("submit", handleRoomSubmit);
